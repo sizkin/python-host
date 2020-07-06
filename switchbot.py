@@ -17,6 +17,8 @@ import sys
 from bluepy.btle import Scanner, DefaultDelegate
 import binascii
 
+service_uuid = 'CBA20D00-224D-11E6-9FB8-0002A5D5C51B'
+
 class ScanDelegate(DefaultDelegate):
     def __init__(self):
         DefaultDelegate.__init__(self)
@@ -38,7 +40,8 @@ class DevScanner(DefaultDelegate):
         time.sleep(3)
 
     def scan_loop(self):
-        service_uuid = '1bc5d5a50200b89fe6114d22000da2cb'
+        #service_uuid = '1bc5d5a50200b89fe6114d22000da2cb'
+        service_uuid = 'CBA20D00-224D-11E6-9FB8-0002A5D5C51B'
         menufacturer_id = '5900f46d2c8a5f31'
         dev_list =[]
         bot_list =[]
@@ -111,18 +114,21 @@ def trigger_device(device):
     con.sendline('connect')
     #To compatible with different Bluez versions
     con.expect(['\[CON\]','Connection successful.*\[LE\]>'])
+    print "Connection successful."
     con.sendline('char-desc')
     con.expect(['\[CON\]','cba20002-224d-11e6-9fb8-0002a5d5c51b'])
     cmd_handle = con.before.split('\n')[-1].split()[2].strip(',')
-    if act == "Turn On":
+    print "cmd handle: " + cmd_handle
+    input_act = act.lower()
+    if input_act == "turn On":
         con.sendline('char-write-cmd ' + cmd_handle + ' 570101')
-    elif act == "Turn Off":
+    elif input_act == "turn off":
         con.sendline('char-write-cmd ' + cmd_handle + ' 570102')
-    elif act == "Press":
+    elif input_act == "press":
         con.sendline('char-write-cmd ' + cmd_handle + ' 570100')
-    elif act == "Down":
+    elif input_act == "down":
         con.sendline('char-write-cmd ' + cmd_handle + ' 570103')
-    elif act == "Up":
+    elif input_act == "up":
         con.sendline('char-write-cmd ' + cmd_handle + ' 570104')
     con.expect('\[LE\]>')
     con.sendline('quit')
